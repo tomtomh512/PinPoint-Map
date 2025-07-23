@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import httpClient from '../httpClient';
 import '../styles/Profile.css';
+import {useVerifyToken} from "../hooks/useVerifyToken";
+import {removeToken} from "../utils/tokenUtils";
 
 export default function Profile(props) {
     const { user, setUser, setCurrentMarkers } = props;
@@ -12,33 +13,11 @@ export default function Profile(props) {
     }, [setCurrentMarkers]);
 
     // Verify user token
-    useEffect(() => {
-        const verifyToken = async () => {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                setUser({ id: null, username: null });
-                return;
-            }
+    useVerifyToken(setUser);
 
-            try {
-                const response = await httpClient.get(
-                    `${process.env.REACT_APP_SERVER_API_URL}/auth/verify-token/${token}`
-                );
-
-                console.log('Token is valid:', response.data);
-                setUser({ id: response.data.id, username: response.data.username });
-            } catch (error) {
-                console.log('Token invalid or expired:', error);
-                localStorage.removeItem('token');
-                setUser({ id: null, username: null });
-            }
-        };
-
-        verifyToken();
-    }, [setUser]);
-
+    // Log out user
     const logoutUser = () => {
-        localStorage.removeItem('token');
+        removeToken();
         setUser({ id: null, username: null });
     };
 

@@ -17,6 +17,7 @@ router = APIRouter()
 
 @router.post("/register")
 def register_user(user: UserCreate, db: Session = Depends(get_db)):
+    print("registering")
     db_user = get_user_by_username(db, username=user.username)
     if db_user:
         raise HTTPException(status_code=400, detail="Username already registered")
@@ -25,6 +26,7 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
 
 @router.post("/login")
 def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    print("logging in")
     user = authenticate_user(form_data.username, form_data.password, db)
     if not user:
         raise HTTPException(

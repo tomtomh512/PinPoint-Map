@@ -1,51 +1,54 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import httpClient from '../httpClient';
-import '../styles/Authentication.css';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import httpClient from "../httpClient";
+import { setToken } from "../utils/tokenUtils";
+import { extractErrorMessage } from "../utils/errorUtils";
+import "../styles/Authentication.css";
 
 export default function Register() {
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
-    const [alertMessage, setAlertMessage] = useState('');
+    const [form, setForm] = useState({
+        username: "",
+        password: "",
+        confirmPassword: "",
+    });
+    const [alertMessage, setAlertMessage] = useState("");
     const navigate = useNavigate();
 
-    const registerUser = async (event) => {
-        event.preventDefault();
+    const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
-        if (password !== confirmPassword) {
-            setAlertMessage('Passwords do not match');
+    const registerUser = async (e) => {
+        e.preventDefault();
+
+        if (form.password !== form.confirmPassword) {
+            setAlertMessage("Passwords do not match");
             return;
         }
 
         try {
             await httpClient.post(`${process.env.REACT_APP_SERVER_API_URL}/auth/register`, {
-                username,
-                password,
+                username: form.username,
+                password: form.password,
             });
 
+            // Log in immediately after registering
             const loginData = new URLSearchParams();
-            loginData.append('username', username);
-            loginData.append('password', password);
+            loginData.append("username", form.username);
+            loginData.append("password", form.password);
 
             const loginResponse = await httpClient.post(
                 `${process.env.REACT_APP_SERVER_API_URL}/auth/login`,
                 loginData,
                 {
                     headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
+                        "Content-Type": "application/x-www-form-urlencoded",
                     },
                 }
             );
 
-            localStorage.setItem('token', loginResponse.data.access_token);
-            navigate('/profile');
+            setToken(loginResponse.data.access_token);
+            navigate("/profile");
         } catch (error) {
-            if (error.response?.data?.detail) {
-                setAlertMessage(error.response.data.detail);
-            } else {
-                setAlertMessage('An error occurred. Please try again later.');
-            }
+            setAlertMessage(extractErrorMessage(error));
         }
     };
 
@@ -57,9 +60,10 @@ export default function Register() {
                 <label>Enter username</label>
                 <input
                     type="text"
+                    name="username"
                     placeholder="Username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
+                    value={form.username}
+                    onChange={handleChange}
                     required
                 />
                 <br />
@@ -67,9 +71,10 @@ export default function Register() {
                 <label>Enter password</label>
                 <input
                     type="password"
+                    name="password"
                     placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    value={form.password}
+                    onChange={handleChange}
                     required
                 />
                 <br />
@@ -77,14 +82,17 @@ export default function Register() {
                 <label>Confirm password</label>
                 <input
                     type="password"
+                    name="confirmPassword"
                     placeholder="Confirm Password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    value={form.confirmPassword}
+                    onChange={handleChange}
                     required
                 />
                 <br />
 
-                <button type="submit" className="login-logout-button">Register</button>
+                <button type="submit" className="login-logout-button">
+                    Register
+                </button>
             </form>
 
             {alertMessage && <p className="error-message">{alertMessage}</p>}

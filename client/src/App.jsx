@@ -8,8 +8,8 @@ import Planned from "./components/Planned";
 import Map from "./components/Map";
 import Login from "./components/Login";
 import Register from "./components/Register";
-import httpClient from "./httpClient";
 import "./styles/app.css";
+import {useVerifyToken} from "./hooks/useVerifyToken";
 
 export default function App() {
 
@@ -56,31 +56,7 @@ export default function App() {
     })
 
     // Verify user token
-    useEffect(() => {
-        const verifyToken = async () => {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                setUser({ id: null, username: null });
-                return;
-            }
-
-            try {
-                const response = await httpClient.get(
-                    `${process.env.REACT_APP_SERVER_API_URL}/auth/verify-token/${token}`
-                );
-
-                console.log('Token is valid:', response.data);
-                setUser({ id: response.data.id, username: response.data.username });
-            } catch (error) {
-                console.log('Token invalid or expired:', error);
-                localStorage.removeItem('token');
-                setUser({ id: null, username: null });
-            }
-        };
-
-        verifyToken();
-    }, [setUser]);
-
+    useVerifyToken(setUser);
 
     return (
         <main className="main-container">
