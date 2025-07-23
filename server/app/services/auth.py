@@ -22,7 +22,11 @@ def create_user(db: Session, user: UserCreate):
     db_user = User(username=user.username, hashed_password=hashed_password)
     db.add(db_user)
     db.commit()
-    return "complete"
+    db.refresh(db_user)
+    return {
+        "id": db_user.id,
+        "username": db_user.username,
+    }
 
 
 def authenticate_user(username: str, password: str, db: Session):

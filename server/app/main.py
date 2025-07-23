@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.v1.routes import users
+from app.api.v1.routes import auth
 from app.api.v1.routes import here_api
 
 # from fastapi import FastAPI
@@ -22,5 +22,5 @@ app.add_middleware(
 )
 
 # Include versioned API routers
-app.include_router(users.router, prefix="/api/v1/auth")
+app.include_router(auth.router, prefix="/api/v1/auth")
 app.include_router(here_api.router, prefix="/api/v1/here")

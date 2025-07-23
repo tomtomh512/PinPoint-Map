@@ -15,8 +15,6 @@ def search_query(query_search: str, lat: str, long: str, limit: int):
     }
 
     url = "https://discover.search.hereapi.com/v1/discover"
-    req = requests.Request("GET", url, params=params).prepare()
-    print("GET URL:", req.url)
 
     response = requests.get(url, params=params)
     if response.status_code == 200:
@@ -43,8 +41,6 @@ def search_by_id(here_id: str):
     }
 
     url = "https://lookup.search.hereapi.com/v1/lookup"
-    req = requests.Request("GET", url, params=params).prepare()
-    print("GET URL:", req.url)
 
     response = requests.get(url, params=params)
     if response.status_code == 200:

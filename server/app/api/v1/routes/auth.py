@@ -23,7 +23,7 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
     return create_user(db=db, user=user)
 
 
-@router.post("/token")
+@router.post("/login")
 def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = authenticate_user(form_data.username, form_data.password, db)
     if not user:
@@ -33,13 +33,26 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db:
             headers={"WWW-Authenticate": "Bearer"},
         )
 
+    token = create_access_token({"sub": user.username})
     return {
-        "access_token": create_access_token({"sub": user.username}),
+        "id": user.id,
+        "username": user.username,
+        "access_token": token,
         "token_type": "bearer",
     }
 
 
 @router.get("/verify-token/{token}")
-def verify_user_token(token: str):
-    verify_token(token=token)
-    return {"message": "Token is valid"}
+def verify_user_token(token: str, db: Session = Depends(get_db)):
+    payload = verify_token(token)
+    username = payload.get("sub")
+
+    user = get_user_by_username(db, username)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    return {
+        "id": user.id,
+        "username": user.username,
+        "message": "Token is valid",
+    }

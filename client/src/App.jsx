@@ -55,21 +55,31 @@ export default function App() {
         "username": null
     })
 
-    // Verify user
+    // Verify user token
     useEffect(() => {
-        const verifyUser = async () => {
-            try {
-                const response = await httpClient.get("http://localhost:5000/verify");
-                setUser(response.data);
+        const verifyToken = async () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                setUser({ id: null, username: null });
+                return;
+            }
 
+            try {
+                const response = await httpClient.get(
+                    `${process.env.REACT_APP_SERVER_API_URL}/auth/verify-token/${token}`
+                );
+
+                console.log('Token is valid:', response.data);
+                setUser({ id: response.data.id, username: response.data.username });
             } catch (error) {
-                console.error("Authentication failed:", error.message);
-                setUser({ id: null, email: null });
+                console.log('Token invalid or expired:', error);
+                localStorage.removeItem('token');
+                setUser({ id: null, username: null });
             }
         };
 
-        verifyUser();
-    }, []);
+        verifyToken();
+    }, [setUser]);
 
 
     return (
