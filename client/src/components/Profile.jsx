@@ -1,11 +1,10 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import '../styles/Profile.css';
-import {useVerifyToken} from "../hooks/useVerifyToken";
 import {removeToken} from "../utils/tokenUtils";
 
 export default function Profile(props) {
-    const { user, setUser, setCurrentMarkers } = props;
+    const { user, setUser, setCurrentMarkers, verifyToken } = props;
 
     // Clear markers when user is on profile page
     useEffect(() => {
@@ -13,7 +12,9 @@ export default function Profile(props) {
     }, [setCurrentMarkers]);
 
     // Verify user token
-    useVerifyToken(setUser);
+    useEffect(() => {
+        verifyToken();
+    }, [verifyToken]);
 
     // Log out user
     const logoutUser = () => {

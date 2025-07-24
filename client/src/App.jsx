@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Profile from "./components/Profile";
@@ -9,7 +9,8 @@ import Map from "./components/Map";
 import Login from "./components/Login";
 import Register from "./components/Register";
 import "./styles/app.css";
-import {useVerifyToken} from "./hooks/useVerifyToken";
+import {getToken, removeToken} from "./utils/tokenUtils";
+import httpClient from "./httpClient";
 
 export default function App() {
 
@@ -56,7 +57,26 @@ export default function App() {
     })
 
     // Verify user token
-    useVerifyToken(setUser);
+    const verifyToken = useCallback(async () => {
+        const token = getToken();
+        if (!token) {
+            setUser({ id: null, username: null });
+            return;
+        }
+        try {
+            const response = await httpClient.get(
+                `${process.env.REACT_APP_SERVER_API_URL}/auth/verify-token/${token}`
+            );
+            setUser({ id: response.data.id, username: response.data.username });
+        } catch {
+            removeToken();
+            setUser({ id: null, username: null });
+        }
+    }, []);
+
+    useEffect(() => {
+        verifyToken();
+    }, [verifyToken]);
 
     return (
         <main className="main-container">
@@ -96,6 +116,7 @@ export default function App() {
                             user={user}
                             setUser={setUser}
                             setCurrentMarkers={setCurrentMarkers}
+                            verifyToken={verifyToken}
                         />
                     } />
                     <Route path="/login" element={<Login />} />
