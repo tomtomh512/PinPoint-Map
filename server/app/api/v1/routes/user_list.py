@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 
 from app.dependencies.db import get_db
 from app.dependencies.auth import get_current_user
@@ -72,14 +72,18 @@ def add_user_list(
 
 @router.get("/", response_model=List[UserListOut])
 def get_user_lists(
-        filters: List[str] = Query(default=[]),  # e.g. ?filters=park&filters=museum
+        type: Optional[str] = None,  # e.g. "favorite" or "planned"
+        filters: List[str] = Query(default=[]),
         db: Session = Depends(get_db),
         current_user: User = Depends(get_current_user)
 ):
     user_id = current_user.id
 
-    # Query all user_list entries for this user
-    entries = db.query(UserList).filter_by(user_id=user_id).all()
+    query = db.query(UserList).filter_by(user_id=user_id)
+    if type:
+        query = query.filter(UserList.type == type)  # filter by type
+
+    entries = query.all()
 
     if filters:
         filtered = []
