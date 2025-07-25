@@ -1,6 +1,7 @@
 import React, {useEffect, useRef} from "react";
 import "../styles/Listings.css";
 import httpClient from "../httpClient";
+import {getToken} from "../utils/tokenUtils";
 
 export default function Listings(props) {
     const {
@@ -44,86 +45,61 @@ export default function Listings(props) {
         }
     }
 
-    const addFavorite = async (listing) => {
+    const addUserListItem = async (listing, type) => {
         if (!user.id || !user.username) {
-            alert("Please log in to save to favorites");
+            alert(`Please log in to save to ${type}`);
             return;
         }
 
         try {
-            await httpClient.post("http://localhost:5000/favorites", {
-                location_name: listing.name,
-                location_id: listing.location_id,
-                address: listing.address,
-                categories: listing.categories,
-                lat: listing.lat,
-                long: listing.long
-            });
+            await httpClient.post(
+                `${process.env.REACT_APP_SERVER_API_URL}/userlist/`,
+                {
+                    location_id: listing.location_id,
+                    location_name: listing.name,
+                    address: listing.address,
+                    categories: listing.categories,
+                    lat: listing.lat,
+                    long: listing.long,
+                    type: type, // "favorite" or "planned"
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${getToken()}`,  // assuming token stored in localStorage
+                    },
+                }
+            );
 
-            setMessage(listing.name + " added to Favorites");
+            setMessage(`${listing.name} added to ${type.charAt(0).toUpperCase() + type.slice(1)}`);
 
         } catch (error) {
-            setMessage(error.response.data.error);
+            setMessage(error.response?.data?.detail || error.message);
         }
     };
 
-    const addPlanned = async (listing) => {
+    const removeUserListItem = async (listing) => {
         if (!user.id || !user.username) {
-            alert("Please log in to save to planned");
+            alert(`Please log in to remove from ${listing.listing_type}`);
             return;
         }
 
         try {
-            await httpClient.post("http://localhost:5000/planned", {
-                location_name: listing.name,
-                location_id: listing.location_id,
-                address: listing.address,
-                categories: listing.categories,
-                lat: listing.lat,
-                long: listing.long
-            });
-
-            setMessage(listing.name + " added to Planned");
-
-        } catch (error) {
-            setMessage(error.response.data.error);
-        }
-    };
-
-    const removeFavorite = async (listing) => {
-        if (!user.id || !user.username) {
-            alert("Please log in to remove from favorites");
-            return;
-        }
-
-        try {
-            await httpClient.delete(`http://localhost:5000/favorites/${listing.id}`);
+            await httpClient.delete(
+                `${process.env.REACT_APP_SERVER_API_URL}/userlist/${listing.id}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${getToken()}`,
+                    },
+                }
+            );
             setListings((prevListings) => prevListings.filter(item => item.id !== listing.id));
-            setMessage(listing.name + " removed from Favorites");
+            setMessage(`${listing.name} removed from ${listing.listing_type.charAt(0).toUpperCase() + listing.listing_type.slice(1)}`);
 
         } catch (error) {
-            console.error("Error removing from favorites:", error);
-            alert("Something went wrong while removing from favorites.");
+            console.error(`Error removing from ${listing.listing_type}:`, error);
+            alert(`Something went wrong while removing from ${listing.listing_type}.`);
         }
     };
-
-    const removePlanned = async (listing) => {
-        if (!user.id || !user.username) {
-            alert("Please log in to remove from planned");
-            return;
-        }
-
-        try {
-            await httpClient.delete(`http://localhost:5000/planned/${listing.id}`);
-            setListings((prevListings) => prevListings.filter(item => item.id !== listing.id));
-            setMessage(listing.name + " removed from Planned");
-
-        } catch (error) {
-            console.error("Error removing from planned:", error);
-            alert("Something went wrong while removing from planned.");
-        }
-    };
-
 
     return (
         <section className="listings-container">
@@ -211,26 +187,26 @@ export default function Listings(props) {
                     </div>
 
                     <section className="button-container">
-                        {listing.listing_type === "search" ?
+                        {listing.listing_type === "search" ? (
                             <>
-                                <button className="list-button" onClick={() => addFavorite(listing)}> Favorite +</button>
-                                <button className="list-button" onClick={() => addPlanned(listing)}> Planned +</button>
+                                <button className="list-button" onClick={() => addUserListItem(listing, "favorite")}> Favorite +</button>
+                                <button className="list-button" onClick={() => addUserListItem(listing, "planned")}> Planned +</button>
                             </>
-                            :
+                        ) : (
                             <>
-                                {listing.listing_type === "favorite" ?
-                                    <button className="list-button" onClick={() => removeFavorite(listing)}> Favorite
-                                        -</button>
-                                    :
-                                    <button className="list-button" onClick={() => addFavorite(listing)}> Favorite +</button>
-                                }
-                                {listing.listing_type === "planned" ?
-                                    <button className="list-button" onClick={() => removePlanned(listing)}> Planned -</button>
-                                    :
-                                    <button className="list-button" onClick={() => addPlanned(listing)}> Planned +</button>
-                                }
+                                {listing.listing_type === "favorite" ? (
+                                    <button className="list-button" onClick={() => removeUserListItem(listing)}> Favorite -</button>
+                                ) : (
+                                    <button className="list-button" onClick={() => addUserListItem(listing, "favorite")}> Favorite +</button>
+                                )}
+
+                                {listing.listing_type === "planned" ? (
+                                    <button className="list-button" onClick={() => removeUserListItem(listing)}> Planned -</button>
+                                ) : (
+                                    <button className="list-button" onClick={() => addUserListItem(listing, "planned")}> Planned +</button>
+                                )}
                             </>
-                        }
+                        )}
 
                     </section>
                 </div>

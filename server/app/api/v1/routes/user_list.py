@@ -12,6 +12,7 @@ from app.models.user import User
 
 router = APIRouter()
 
+
 @router.post("/", status_code=201)
 def add_user_list(
         payload: UserListCreate,
