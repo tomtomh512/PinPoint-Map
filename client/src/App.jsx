@@ -3,14 +3,13 @@ import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Profile from "./components/Profile";
 import Search from "./components/Search";
-import Favorites from "./components/Favorites";
-import Planned from "./components/Planned";
 import Map from "./components/Map";
 import Login from "./components/Login";
 import Register from "./components/Register";
 import "./styles/app.css";
 import {getToken, removeToken} from "./utils/tokenUtils";
 import httpClient from "./httpClient";
+import UserList from "./components/UserList";
 
 export default function App() {
 
@@ -122,23 +121,31 @@ export default function App() {
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
 
-                    {/*<Route path="/favorites" element={*/}
-                    {/*    <Favorites*/}
-                    {/*        user={user}*/}
-                    {/*        setCurrentMarkers={setCurrentMarkers}*/}
-                    {/*        selectedLocation={selectedLocation}*/}
-                    {/*        setSelectedLocation={setSelectedLocation}*/}
-                    {/*    />*/}
-                    {/*} />*/}
+                    <Route
+                        path="/favorites"
+                        element={
+                            <UserList
+                                user={user}
+                                setCurrentMarkers={setCurrentMarkers}
+                                selectedLocation={selectedLocation}
+                                setSelectedLocation={setSelectedLocation}
+                                type="favorite"  // Specify favorites type
+                            />
+                        }
+                    />
 
-                    {/*<Route path="/planned" element={*/}
-                    {/*    <Planned*/}
-                    {/*        user={user}*/}
-                    {/*        setCurrentMarkers={setCurrentMarkers}*/}
-                    {/*        selectedLocation={selectedLocation}*/}
-                    {/*        setSelectedLocation={setSelectedLocation}*/}
-                    {/*    />*/}
-                    {/*} />*/}
+                    <Route
+                        path="/planned"
+                        element={
+                            <UserList
+                                user={user}
+                                setCurrentMarkers={setCurrentMarkers}
+                                selectedLocation={selectedLocation}
+                                setSelectedLocation={setSelectedLocation}
+                                type="planned"  // Specify planned type
+                            />
+                        }
+                    />
                 </Routes>
             }
         </main>
