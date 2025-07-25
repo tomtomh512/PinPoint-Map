@@ -1,12 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.v1.routes import auth
-from app.api.v1.routes import here_api
+from app.api.v1.routes import auth, here_api, user_list
 
-# from fastapi import FastAPI
 # from .db.database import engine, Base
-# from .api.v1.routes import users
-#
 # Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
@@ -24,3 +20,4 @@ app.add_middleware(
 # Include versioned API routers
 app.include_router(auth.router, prefix="/api/v1/auth")
 app.include_router(here_api.router, prefix="/api/v1/here")
+app.include_router(user_list.router, prefix="/api/v1/userlist", tags=["UserList"])
