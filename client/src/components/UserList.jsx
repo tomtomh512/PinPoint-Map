@@ -11,7 +11,7 @@ export default function UserList(props) {
         setCurrentMarkers,
         selectedLocation,
         setSelectedLocation,
-        type,  // "favorite" or "planned"
+        type,
     } = props;
 
     const [listResults, setListResults] = useState([]);
@@ -46,7 +46,6 @@ export default function UserList(props) {
         }
     }, [user.id, user.username, filtersInUse, type, setCurrentMarkers]);
 
-    // Memoize fetchCategories
     const fetchCategories = useCallback(async () => {
         if (user.id && user.username) {
             try {

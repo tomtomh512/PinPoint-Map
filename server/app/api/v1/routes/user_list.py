@@ -21,18 +21,15 @@ def add_user_list(
 ):
     user_id = current_user.id
 
-    # Check required fields
     if not payload.location_name or not payload.location_id or not payload.address:
         raise HTTPException(status_code=400, detail="Missing required fields")
 
-    # Check if item already exists for user & location & type
     existing_item = db.query(UserList).filter_by(
         user_id=user_id, location_id=payload.location_id, type=payload.type
     ).first()
     if existing_item:
         raise HTTPException(status_code=409, detail=f"{payload.location_name} is already in {payload.type}")
 
-    # Create new UserList entry
     new_entry = UserList(
         user_id=user_id,
         location_id=payload.location_id,
@@ -40,7 +37,6 @@ def add_user_list(
     )
     db.add(new_entry)
 
-    # Ensure Location exists or create
     location = db.query(Location).filter_by(id=payload.location_id).first()
     if not location:
         location = Location(
@@ -52,10 +48,8 @@ def add_user_list(
         )
         db.add(location)
     else:
-        # Optionally update location info here if you want to keep it fresh
         pass
 
-    # Handle categories
     for category_data in payload.categories:
         category = db.query(Category).filter_by(id=category_data.id).first()
         if not category:
@@ -79,7 +73,6 @@ def get_user_lists(
 ):
     user_id = current_user.id
 
-    # Eager-load Location and its categories
     query = db.query(UserList).filter_by(user_id=user_id).options(
         joinedload(UserList.location).joinedload(Location.categories)
     )
@@ -88,7 +81,6 @@ def get_user_lists(
 
     entries = query.all()
 
-    # Filter in memory using eager-loaded data
     if filters:
         entries = [
             entry for entry in entries
@@ -141,13 +133,12 @@ def delete_user_list_item(
 
 @router.get("/categories")
 def get_user_list_categories(
-        type: Optional[str] = None,  # Add type as a query param
+        type: Optional[str] = None,
         db: Session = Depends(get_db),
         current_user: User = Depends(get_current_user)
 ):
     user_id = current_user.id
 
-    # Filter entries by user and optional type
     query = db.query(UserList).filter(UserList.user_id == user_id)
     if type:
         query = query.filter(UserList.type == type)
