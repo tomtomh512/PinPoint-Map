@@ -129,7 +129,7 @@ export default function App() {
                                 setCurrentMarkers={setCurrentMarkers}
                                 selectedLocation={selectedLocation}
                                 setSelectedLocation={setSelectedLocation}
-                                type="favorite"  // Specify favorites type
+                                type="Favorites"
                             />
                         }
                     />
@@ -142,7 +142,7 @@ export default function App() {
                                 setCurrentMarkers={setCurrentMarkers}
                                 selectedLocation={selectedLocation}
                                 setSelectedLocation={setSelectedLocation}
-                                type="planned"  // Specify planned type
+                                type="Planned"
                             />
                         }
                     />

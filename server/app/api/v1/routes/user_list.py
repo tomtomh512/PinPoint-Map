@@ -72,7 +72,7 @@ def add_user_list(
 
 @router.get("/", response_model=List[UserListOut])
 def get_user_lists(
-        type: Optional[str] = None,  # e.g. "favorite" or "planned"
+        type: Optional[str] = None,
         filters: List[str] = Query(default=[]),
         db: Session = Depends(get_db),
         current_user: User = Depends(get_current_user)
@@ -81,7 +81,7 @@ def get_user_lists(
 
     query = db.query(UserList).filter_by(user_id=user_id)
     if type:
-        query = query.filter(UserList.type == type)  # filter by type
+        query = query.filter(UserList.type == type)
 
     entries = query.all()
 

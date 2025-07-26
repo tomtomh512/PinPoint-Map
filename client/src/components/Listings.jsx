@@ -61,11 +61,11 @@ export default function Listings(props) {
                     categories: listing.categories,
                     lat: listing.lat,
                     long: listing.long,
-                    type: type, // "favorite" or "planned"
+                    type: type,
                 },
                 {
                     headers: {
-                        Authorization: `Bearer ${getToken()}`,  // assuming token stored in localStorage
+                        Authorization: `Bearer ${getToken()}`,
                     },
                 }
             );
@@ -93,7 +93,7 @@ export default function Listings(props) {
                 }
             );
             setListings((prevListings) => prevListings.filter(item => item.id !== listing.id));
-            setMessage(`${listing.name} removed from ${listing.listing_type.charAt(0).toUpperCase() + listing.listing_type.slice(1)}`);
+            setMessage(`${listing.name} removed from ${listing.listing_type}`);
 
         } catch (error) {
             console.error(`Error removing from ${listing.listing_type}:`, error);
@@ -189,21 +189,21 @@ export default function Listings(props) {
                     <section className="button-container">
                         {listing.listing_type === "search" ? (
                             <>
-                                <button className="list-button" onClick={() => addUserListItem(listing, "favorite")}> Favorite +</button>
-                                <button className="list-button" onClick={() => addUserListItem(listing, "planned")}> Planned +</button>
+                                <button className="list-button" onClick={() => addUserListItem(listing, "Favorites")}> Favorite +</button>
+                                <button className="list-button" onClick={() => addUserListItem(listing, "Planned")}> Planned +</button>
                             </>
                         ) : (
                             <>
                                 {listing.listing_type === "favorite" ? (
                                     <button className="list-button" onClick={() => removeUserListItem(listing)}> Favorite -</button>
                                 ) : (
-                                    <button className="list-button" onClick={() => addUserListItem(listing, "favorite")}> Favorite +</button>
+                                    <button className="list-button" onClick={() => addUserListItem(listing, "Favorites")}> Favorite +</button>
                                 )}
 
                                 {listing.listing_type === "planned" ? (
                                     <button className="list-button" onClick={() => removeUserListItem(listing)}> Planned -</button>
                                 ) : (
-                                    <button className="list-button" onClick={() => addUserListItem(listing, "planned")}> Planned +</button>
+                                    <button className="list-button" onClick={() => addUserListItem(listing, "Planned")}> Planned +</button>
                                 )}
                             </>
                         )}

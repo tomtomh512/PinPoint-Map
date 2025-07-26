@@ -32,7 +32,7 @@ export default function UserList(props) {
                     {
                         params: {
                             filters: filtersInUse,
-                            type: type,  // Pass type to filter on backend
+                            type: type,
                         },
                         headers: {
                             Authorization: `Bearer ${getToken()}`,
@@ -103,7 +103,7 @@ export default function UserList(props) {
 
     return (
         <div className="userlist-container main-content-element">
-            <h1>{type.charAt(0).toUpperCase() + type.slice(1)}</h1>
+            <h1>{type}</h1>
             {user.id && user.username ? (
                 <>
                     {listResults.length === 0 ? (

@@ -2,9 +2,11 @@ from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
 
+
 class CategoryBase(BaseModel):
     id: str
     name: str
+
 
 class UserListCreate(BaseModel):
     location_id: str
@@ -12,13 +14,15 @@ class UserListCreate(BaseModel):
     address: str
     lat: float
     long: float
-    type: str  # "favorite" or "planned"
+    type: str
     categories: Optional[List[CategoryBase]] = []
+
 
 class CategoryOut(BaseModel):
     id: str
     name: str
     primary: bool = False
+
 
 class UserListOut(BaseModel):
     id: str
