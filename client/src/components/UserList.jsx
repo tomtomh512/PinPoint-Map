@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import Listings from "./Listings";
 import "../styles/UserLists.css";
 import { Link } from "react-router-dom";
@@ -23,10 +23,9 @@ export default function UserList(props) {
         setSelectedLocation({});
     }, [setSelectedLocation]);
 
-    const fetchList = async () => {
+    const fetchList = useCallback(async () => {
         if (user.id && user.username) {
             try {
-                // Adjusted endpoint to unified userlist route
                 const response = await httpClient.get(
                     `${process.env.REACT_APP_SERVER_API_URL}/userlist`,
                     {
@@ -41,14 +40,14 @@ export default function UserList(props) {
                 );
                 setListResults(response.data);
                 setCurrentMarkers(response.data);
-
             } catch (error) {
                 console.error(`Error fetching ${type}:`, error);
             }
         }
-    };
+    }, [user.id, user.username, filtersInUse, type, setCurrentMarkers]);
 
-    const fetchCategories = async () => {
+    // Memoize fetchCategories
+    const fetchCategories = useCallback(async () => {
         if (user.id && user.username) {
             try {
                 const response = await httpClient.get(
@@ -65,7 +64,7 @@ export default function UserList(props) {
                 console.error(`Error fetching ${type} categories:`, error);
             }
         }
-    };
+    }, [user.id, user.username, type]);
 
     useEffect(() => {
         setCurrentMarkers(listResults);
@@ -74,7 +73,7 @@ export default function UserList(props) {
     useEffect(() => {
         fetchList();
         fetchCategories();
-    }, [setCurrentMarkers, filtersInUse, user.id, user.username, type]);
+    }, [fetchList, fetchCategories]);
 
     // Feedback message
     const [message, setMessage] = useState("");

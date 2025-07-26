@@ -194,13 +194,13 @@ export default function Listings(props) {
                             </>
                         ) : (
                             <>
-                                {listing.listing_type === "favorite" ? (
+                                {listing.listing_type === "Favorites" ? (
                                     <button className="list-button" onClick={() => removeUserListItem(listing)}> Favorite -</button>
                                 ) : (
                                     <button className="list-button" onClick={() => addUserListItem(listing, "Favorites")}> Favorite +</button>
                                 )}
 
-                                {listing.listing_type === "planned" ? (
+                                {listing.listing_type === "Planned" ? (
                                     <button className="list-button" onClick={() => removeUserListItem(listing)}> Planned -</button>
                                 ) : (
                                     <button className="list-button" onClick={() => addUserListItem(listing, "Planned")}> Planned +</button>

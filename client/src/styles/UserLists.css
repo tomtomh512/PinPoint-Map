@@ -16,8 +16,9 @@
 
 .filter-form {
     margin-bottom: 10px;
+    min-height: 100px;
     max-height: 300px;
-    overflow-y: scroll;
+    overflow-y: auto;
 }
 
 .filter-box {

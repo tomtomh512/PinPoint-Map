@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from typing import List, Optional
 
 from app.dependencies.db import get_db
@@ -79,31 +79,32 @@ def get_user_lists(
 ):
     user_id = current_user.id
 
-    query = db.query(UserList).filter_by(user_id=user_id)
+    # Eager-load Location and its categories
+    query = db.query(UserList).filter_by(user_id=user_id).options(
+        joinedload(UserList.location).joinedload(Location.categories)
+    )
     if type:
         query = query.filter(UserList.type == type)
 
     entries = query.all()
 
+    # Filter in memory using eager-loaded data
     if filters:
-        filtered = []
-        for entry in entries:
-            location = db.query(Location).filter_by(id=entry.location_id).first()
-            if location:
-                category_names = {c.name for c in location.categories}
-                if any(f in category_names for f in filters):
-                    filtered.append(entry)
-        entries = filtered
+        entries = [
+            entry for entry in entries
+            if entry.location and any(
+                f in {cat.name for cat in entry.location.categories}
+                for f in filters
+            )
+        ]
 
     results = []
     for entry in entries:
-        location = db.query(Location).filter_by(id=entry.location_id).first()
-        categories = []
-        if location:
-            categories = [
-                {"id": cat.id, "name": cat.name, "primary": False}
-                for cat in location.categories
-            ]
+        location = entry.location
+        categories = [
+            {"id": cat.id, "name": cat.name, "primary": False}
+            for cat in location.categories
+        ] if location else []
 
         results.append({
             "id": entry.id,
