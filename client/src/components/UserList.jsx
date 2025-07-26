@@ -51,17 +51,16 @@ export default function UserList(props) {
     const fetchCategories = async () => {
         if (user.id && user.username) {
             try {
-                // Unified categories endpoint if you have one, otherwise separate by type
                 const response = await httpClient.get(
                     `${process.env.REACT_APP_SERVER_API_URL}/userlist/categories`,
                     {
+                        params: { type },
                         headers: {
-                            Authorization: `Bearer ${localStorage.getItem("token")}`,
+                            Authorization: `Bearer ${getToken()}`,
                         },
                     }
                 );
                 setFilters(response.data.categories);
-
             } catch (error) {
                 console.error(`Error fetching ${type} categories:`, error);
             }

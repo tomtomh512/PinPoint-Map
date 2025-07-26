@@ -140,11 +140,18 @@ def delete_user_list_item(
 
 @router.get("/categories")
 def get_user_list_categories(
+        type: Optional[str] = None,  # Add type as a query param
         db: Session = Depends(get_db),
         current_user: User = Depends(get_current_user)
 ):
     user_id = current_user.id
-    entries = db.query(UserList).filter_by(user_id=user_id).all()
+
+    # Filter entries by user and optional type
+    query = db.query(UserList).filter(UserList.user_id == user_id)
+    if type:
+        query = query.filter(UserList.type == type)
+
+    entries = query.all()
 
     category_set = set()
     for entry in entries:
